@@ -30,7 +30,7 @@ func (m *MongoDBConfig) Connect() error {
 	if err != nil {
 		return fmt.Errorf("failed to connect to MongoDB: %v", err)
 	}
-	defer client.Disconnect(context.TODO())
+	m.client = client // Store the connection!
 	logrus.Info("Connected to MongoDB successfully")
 	return nil
 }
