@@ -24,22 +24,23 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // RunServer starts the HTTP server
 func RunServer() {
 
-	dbstring := "mongodb+srv://git:N2Ud0dzyUK54D7Hq@cluster0.xcypdzo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+	dbstring := "mongodb+srv://git:FUCKU@cluster0.xcypdzo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 	// Initialize the MongoDB repository
 	if dbstring == "" {
 		fmt.Println("Database connection string is empty")
 		return
 	}
-	// connect to MongoDB
-	if err := mongodb.NewRepository(dbstring).Connect(); err != nil {
+
+	repo := mongodb.NewRepository(dbstring)
+	if err := repo.Connect(); err != nil {
 		logrus.Error("Failed to connect to MongoDB:", err)
 		return
 	}
 
 	server := &Server{
 		router:  mux.NewRouter(),
-		mongodb: mongodb.NewRepository(dbstring),
+		mongodb: repo,
 	}
 	server.RegisterRoutes()
 

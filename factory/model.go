@@ -1,7 +1,7 @@
 package factory
 
 type Model struct {
-	Id          string `json:"id"`          //mongodb default _id
+	// Id          string `json:"id"`          //mongodb default _id
 	Request_id  string `json:"request_id"`  //request id
 	Author      string `json:"author"`      //author of the model
 	Action      string `json:"action"`      //action to be performed

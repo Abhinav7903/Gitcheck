@@ -12,7 +12,7 @@ import (
 
 // pass:=N2Ud0dzyUK54D7Hq
 //username:=git
-//string:="mongodb+srv://git:N2Ud0dzyUK54D7Hq@cluster0.xcypdzo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+//string:="mongodb+srv://git:FuckU@cluster0.xcypdzo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 type MongoDBConfig struct {
 	dbstring string
@@ -30,12 +30,20 @@ func (m *MongoDBConfig) Connect() error {
 	if err != nil {
 		return fmt.Errorf("failed to connect to MongoDB: %v", err)
 	}
-	m.client = client // Store the connection!
+
+	if err := client.Ping(context.TODO(), nil); err != nil {
+		return fmt.Errorf("failed to ping MongoDB: %v", err)
+	}
+
+	m.client = client
 	logrus.Info("Connected to MongoDB successfully")
 	return nil
 }
 
 func (m *MongoDBConfig) Create(model *factory.Model) error {
+	if m.client == nil {
+		return fmt.Errorf("mongo client is not initialized")
+	}
 	collection := m.client.Database("git").Collection("test")
 	_, err := collection.InsertOne(context.TODO(), model)
 	if err != nil {
