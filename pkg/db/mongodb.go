@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 	"fmt"
+	"jit/factory"
 
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,6 +16,7 @@ import (
 
 type MongoDBConfig struct {
 	dbstring string
+	client   *mongo.Client
 }
 
 func NewRepository(dbstring string) *MongoDBConfig {
@@ -31,4 +33,27 @@ func (m *MongoDBConfig) Connect() error {
 	defer client.Disconnect(context.TODO())
 	logrus.Info("Connected to MongoDB successfully")
 	return nil
+}
+
+func (m *MongoDBConfig) Create(model *factory.Model) error {
+	collection := m.client.Database("git").Collection("test")
+	_, err := collection.InsertOne(context.TODO(), model)
+	if err != nil {
+		return fmt.Errorf("failed to create document: %v", err)
+	}
+	return nil
+}
+
+func (m *MongoDBConfig) GetByRequestID(requestID string) (*factory.Model, error) {
+	collection := m.client.Database("git").Collection("test")
+	filter := map[string]string{"request_id": requestID}
+	var model factory.Model
+	err := collection.FindOne(context.TODO(), filter).Decode(&model)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, fmt.Errorf("no document found with request_id: %s", requestID)
+		}
+		return nil, fmt.Errorf("failed to get document by request_id: %v", err)
+	}
+	return &model, nil
 }
